@@ -41,8 +41,6 @@ pub const NONCE_LEN: usize = 32;
 pub const HASH_LEN: usize = 32;
 /// Amount buffer lenght
 pub const AMOUNT_LEN: usize = 48;
-/// Payment simple transaction buffer lenght
-pub const PREPARE_PAYMENT_SIMPLE_SIZE: usize = _c::PREPARE_PAYMENT_SIMPLE_SIZE as _;
 /// Emit details buffer lenght
 pub const EMIT_DETAILS_SIZE: usize = 105;
 
@@ -61,8 +59,6 @@ pub type StateKey = Buffer<STATE_KEY_LEN>;
 pub type Nonce = Buffer<NONCE_LEN>;
 /// Amount buffer
 pub type Amount = Buffer<AMOUNT_LEN>;
-/// Simple payment transaction buffer
-pub type TxnPaymentSimple = Buffer<PREPARE_PAYMENT_SIMPLE_SIZE>;
 /// Emit details buffer
 pub type EmitDetails = Buffer<EMIT_DETAILS_SIZE>;
 /// Currency code buffer
@@ -79,10 +75,11 @@ pub enum TxnType {
     AccountSet = 3,
     EscrowCancel = 4,
     RegularKeySet = 5,
+    // NicknameSet = 6,
     OfferCreate = 7,
     OfferCancel = 8,
     TicketCreate = 10,
-    TicketCancel = 11,
+    // SpinalTap = 11,
     SignerListSet = 12,
     PaychanCreate = 13,
     PaychanFund = 14,
@@ -94,6 +91,21 @@ pub enum TxnType {
     TrustSet = 20,
     AccountDelete = 21,
     HookSet = 22,
+    NFTokenMint = 25,
+    NFTokenBurn = 26,
+    NFTokenCreateOffer = 27,
+    NFTokenCancelOffer = 28,
+    NFTokenAcceptOffer = 29,
+    URITokenMint = 45,
+    URITokenBurn = 46,
+    URITokenBuy = 47,
+    URITokenCreateSellOffer = 48,
+    URITokenCancelSellOffer = 49,
+    Remit = 95,
+    GenesisMint = 96,
+    Import = 97,
+    ClaimReward = 98,
+    Invoke = 99,
     Amendment = 100,
     Fee = 101,
     UnlModify = 102,
@@ -160,6 +172,9 @@ pub enum KeyletType<'a> {
     Escrow(&'a [u8], u32),
     Paychan(&'a [u8], &'a [u8], u32),
     Emitted(&'a [u8]),
+    NFTOffer(&'a [u8], u32),
+    HookDefinition(&'a [u8]),
+    HookStateDir(&'a [u8], &'a [u8]),
 }
 
 /// Field or amount type
@@ -169,10 +184,10 @@ pub enum KeyletType<'a> {
 pub enum FieldOrXrpAmount {
     /// Field ID
     Field(FieldId),
-    /// STI_AMOUNT type contains a native (XRP) amount
-    XrpAmount,
-    /// STI_AMOUNT type contains non-XRP amount
-    NonXrpAmount,
+    /// STI_AMOUNT type contains a native amount
+    NativeAmount,
+    /// STI_AMOUNT type contains non-native amount
+    NonNativeAmount,
 }
 
 /// Flags for [slot_type]
@@ -180,8 +195,8 @@ pub enum FieldOrXrpAmount {
 pub enum SlotTypeFlags {
     /// Field
     Field,
-    /// STI_AMOUNT type contains a native (XRP) amount
-    XrpAmount,
+    /// STI_AMOUNT type contains a native amount
+    NativeAmount,
 }
 
 /// Field type
@@ -189,22 +204,22 @@ pub enum SlotTypeFlags {
 #[derive(Clone, Copy)]
 #[repr(u32)]
 pub enum FieldId {
-    Generic = _c::sfGeneric,
-    LedgerEntry = _c::sfLedgerEntry,
-    Transaction = _c::sfTransaction,
-    Validation = _c::sfValidation,
-    Metadata = _c::sfMetadata,
-    Hash = _c::sfHash,
-    Index = _c::sfIndex,
     CloseResolution = _c::sfCloseResolution,
     Method = _c::sfMethod,
     TransactionResult = _c::sfTransactionResult,
     TickSize = _c::sfTickSize,
     UNLModifyDisabling = _c::sfUNLModifyDisabling,
+    HookResult = _c::sfHookResult,
     LedgerEntryType = _c::sfLedgerEntryType,
     TransactionType = _c::sfTransactionType,
     SignerWeight = _c::sfSignerWeight,
+    TransferFee = _c::sfTransferFee,
     Version = _c::sfVersion,
+    HookStateChangeCount = _c::sfHookStateChangeCount,
+    HookEmitCount = _c::sfHookEmitCount,
+    HookExecutionIndex = _c::sfHookExecutionIndex,
+    HookApiVersion = _c::sfHookApiVersion,
+    NetworkID = _c::sfNetworkID,
     Flags = _c::sfFlags,
     SourceTag = _c::sfSourceTag,
     Sequence = _c::sfSequence,
@@ -242,10 +257,20 @@ pub enum FieldId {
     FinishAfter = _c::sfFinishAfter,
     SignerListID = _c::sfSignerListID,
     SettleDelay = _c::sfSettleDelay,
+    TicketCount = _c::sfTicketCount,
+    TicketSequence = _c::sfTicketSequence,
+    NFTokenTaxon = _c::sfNFTokenTaxon,
+    MintedNFTokens = _c::sfMintedNFTokens,
+    BurnedNFTokens = _c::sfBurnedNFTokens,
     HookStateCount = _c::sfHookStateCount,
-    HookReserveCount = _c::sfHookReserveCount,
-    HookDataMaxSize = _c::sfHookDataMaxSize,
     EmitGeneration = _c::sfEmitGeneration,
+    LockCount = _c::sfLockCount,
+    FirstNFTokenSequence = _c::sfFirstNFTokenSequence,
+    XahauActivationLgrSeq = _c::sfXahauActivationLgrSeq,
+    ImportSequence = _c::sfImportSequence,
+    RewardTime = _c::sfRewardTime,
+    RewardLgrFirst = _c::sfRewardLgrFirst,
+    RewardLgrLast = _c::sfRewardLgrLast,
     IndexNext = _c::sfIndexNext,
     IndexPrevious = _c::sfIndexPrevious,
     BookNode = _c::sfBookNode,
@@ -257,8 +282,14 @@ pub enum FieldId {
     DestinationNode = _c::sfDestinationNode,
     Cookie = _c::sfCookie,
     ServerVersion = _c::sfServerVersion,
+    NFTokenOfferNode = _c::sfNFTokenOfferNode,
     EmitBurden = _c::sfEmitBurden,
-    HookOn = _c::sfHookOn,
+    HookInstructionCount = _c::sfHookInstructionCount,
+    HookReturnCode = _c::sfHookReturnCode,
+    ReferenceCount = _c::sfReferenceCount,
+    AccountIndex = _c::sfAccountIndex,
+    AccountCount = _c::sfAccountCount,
+    RewardAccumulator = _c::sfRewardAccumulator,
     EmailHash = _c::sfEmailHash,
     TakerPaysCurrency = _c::sfTakerPaysCurrency,
     TakerPaysIssuer = _c::sfTakerPaysIssuer,
@@ -273,18 +304,34 @@ pub enum FieldId {
     WalletLocator = _c::sfWalletLocator,
     RootIndex = _c::sfRootIndex,
     AccountTxnID = _c::sfAccountTxnID,
+    NFTokenID = _c::sfNFTokenID,
     EmitParentTxnID = _c::sfEmitParentTxnID,
     EmitNonce = _c::sfEmitNonce,
+    EmitHookHash = _c::sfEmitHookHash,
     BookDirectory = _c::sfBookDirectory,
     InvoiceID = _c::sfInvoiceID,
-    Nickname = _c::sfNickname,
+    // Nickname = _c::sfNickname,
     Amendment = _c::sfAmendment,
-    TicketID = _c::sfTicketID,
+    HookOn = _c::sfHookOn,
     Digest = _c::sfDigest,
-    PayChannel = _c::sfPayChannel,
+    Channel = _c::sfChannel,
     ConsensusHash = _c::sfConsensusHash,
     CheckID = _c::sfCheckID,
     ValidatedHash = _c::sfValidatedHash,
+    PreviousPageMin = _c::sfPreviousPageMin,
+    NextPageMin = _c::sfNextPageMin,
+    NFTokenBuyOffer = _c::sfNFTokenBuyOffer,
+    NFTokenSellOffer = _c::sfNFTokenSellOffer,
+    HookStateKey = _c::sfHookStateKey,
+    HookHash = _c::sfHookHash,
+    HookNamespace = _c::sfHookNamespace,
+    HookSetTxnID = _c::sfHookSetTxnID,
+    OfferID = _c::sfOfferID,
+    EscrowID = _c::sfEscrowID,
+    URITokenID = _c::sfURITokenID,
+    GovernanceFlags = _c::sfGovernanceFlags,
+    GovernanceMarks = _c::sfGovernanceMarks,
+    EmittedTxnID = _c::sfEmittedTxnID,
     Amount = _c::sfAmount,
     Balance = _c::sfBalance,
     LimitAmount = _c::sfLimitAmount,
@@ -298,10 +345,16 @@ pub enum FieldId {
     MinimumOffer = _c::sfMinimumOffer,
     RippleEscrow = _c::sfRippleEscrow,
     DeliveredAmount = _c::sfDeliveredAmount,
+    NFTokenBrokerFee = _c::sfNFTokenBrokerFee,
+    LockedBalance = _c::sfLockedBalance,
+    BaseFeeDrops = _c::sfBaseFeeDrops,
+    ReserveBaseDrops = _c::sfReserveBaseDrops,
+    ReserveIncrementDrops = _c::sfReserveIncrementDrops,
     PublicKey = _c::sfPublicKey,
     MessageKey = _c::sfMessageKey,
     SigningPubKey = _c::sfSigningPubKey,
     TxnSignature = _c::sfTxnSignature,
+    URI = _c::sfURI,
     Signature = _c::sfSignature,
     Domain = _c::sfDomain,
     FundCode = _c::sfFundCode,
@@ -315,21 +368,31 @@ pub enum FieldId {
     Condition = _c::sfCondition,
     MasterSignature = _c::sfMasterSignature,
     UNLModifyValidator = _c::sfUNLModifyValidator,
-    NegativeUNLToDisable = _c::sfNegativeUNLToDisable,
-    NegativeUNLToReEnable = _c::sfNegativeUNLToReEnable,
-    HookData = _c::sfHookData,
+    ValidatorToDisable = _c::sfValidatorToDisable,
+    ValidatorToReEnable = _c::sfValidatorToReEnable,
+    HookStateData = _c::sfHookStateData,
+    HookReturnString = _c::sfHookReturnString,
+    HookParameterName = _c::sfHookParameterName,
+    HookParameterValue = _c::sfHookParameterValue,
+    Blob = _c::sfBlob,
     Account = _c::sfAccount,
     Owner = _c::sfOwner,
     Destination = _c::sfDestination,
     Issuer = _c::sfIssuer,
     Authorize = _c::sfAuthorize,
     Unauthorize = _c::sfUnauthorize,
-    Target = _c::sfTarget,
     RegularKey = _c::sfRegularKey,
-    Paths = _c::sfPaths,
+    NFTokenMinter = _c::sfNFTokenMinter,
+    EmitCallback = _c::sfEmitCallback,
+    HookAccount = _c::sfHookAccount,
+    Inform = _c::sfInform,
     Indexes = _c::sfIndexes,
     Hashes = _c::sfHashes,
     Amendments = _c::sfAmendments,
+    NFTokenOffers = _c::sfNFTokenOffers,
+    HookNamespaces = _c::sfHookNamespaces,
+    URITokenIDs = _c::sfURITokenIDs,
+    Paths = _c::sfPaths,
     TransactionMetaData = _c::sfTransactionMetaData,
     CreatedNode = _c::sfCreatedNode,
     DeletedNode = _c::sfDeletedNode,
@@ -341,10 +404,21 @@ pub enum FieldId {
     Memo = _c::sfMemo,
     SignerEntry = _c::sfSignerEntry,
     EmitDetails = _c::sfEmitDetails,
+    Hook = _c::sfHook,
     Signer = _c::sfSigner,
     Majority = _c::sfMajority,
-    NegativeUNLEntry = _c::sfNegativeUNLEntry,
-    SigningAccounts = _c::sfSigningAccounts,
+    DisabledValidator = _c::sfDisabledValidator,
+    EmittedTxn = _c::sfEmittedTxn,
+    HookExecution = _c::sfHookExecution,
+    HookDefinition = _c::sfHookDefinition,
+    HookParameter = _c::sfHookParameter,
+    HookGrant = _c::sfHookGrant,
+    GenesisMint = _c::sfGenesisMint,
+    ActiveValidator = _c::sfActiveValidator,
+    ImportVLKey = _c::sfImportVLKey,
+    HookEmission = _c::sfHookEmission,
+    MintURIToken = _c::sfMintURIToken,
+    AmountEntry = _c::sfAmountEntry,
     Signers = _c::sfSigners,
     SignerEntries = _c::sfSignerEntries,
     Template = _c::sfTemplate,
@@ -352,8 +426,17 @@ pub enum FieldId {
     Sufficient = _c::sfSufficient,
     AffectedNodes = _c::sfAffectedNodes,
     Memos = _c::sfMemos,
+    NFTokens = _c::sfNFTokens,
     Majorities = _c::sfMajorities,
-    NegativeUNL = _c::sfNegativeUNL,
+    DisabledValidators = _c::sfDisabledValidators,
+    HookExecutions = _c::sfHookExecutions,
+    HookParameters = _c::sfHookParameters,
+    HookGrants = _c::sfHookGrants,
+    GenesisMints = _c::sfGenesisMints,
+    ActiveValidators = _c::sfActiveValidators,
+    ImportVLKeys = _c::sfImportVLKeys,
+    HookEmissions = _c::sfHookEmissions,
+    Amounts = _c::sfAmounts,
 }
 
 /// Data representation
@@ -379,6 +462,7 @@ pub enum Result<T> {
 
 pub use self::Result::*;
 
+#[allow(unused_attributes)]
 #[must_use]
 impl<T> Result<T> {
     /// Returns the contained [`Ok`] value, consuming the `self` value.
@@ -450,6 +534,8 @@ impl<T> Result<T> {
 #[derive(Clone, Copy)]
 #[repr(i32)]
 pub enum Error {
+    /// Non-negative return codes refer always to success and usually indicate the number of bytes written or events performed, depending on the specific API.
+    // SUCCESS = _c::SUCCESS,
     /// A pointer or buffer length provided as a parameter described memory outside of the Hook's allowed memory region.
     OutOfBounds = _c::OUT_OF_BOUNDS,
     /// Reserved for internal invariant trips, generally unrelated to inputs.
@@ -503,29 +589,53 @@ pub enum Error {
     /// Specified keylet could not be found, or keylet is invalid
     NoSuchKeylet = _c::NO_SUCH_KEYLET,
     /// API was asked to assume object under analysis is an STArray but it was not.
-    NotAnArray = -22,
+    NotAnArray = _c::NOT_AN_ARRAY,
     /// API was asked to assume object under analysis is an STObject but it was not.
-    NotAnObject = -23,
+    NotAnObject = _c::NOT_AN_OBJECT,
     /// A floating point operation resulted in Not-A-Number or API call attempted to specify an XFL floating point number outside of the expressible range of XFL.
     InvalidFloat = _c::INVALID_FLOAT,
     /// API call would result in a division by zero, so API ended early.
-    DivisionByZero = -25,
+    DivisionByZero = _c::DIVISION_BY_ZERO,
     /// When attempting to create an XFL the mantissa must be 16 decimal digits.
-    ManitssaOversized = -26,
+    MantissaOversized = _c::MANTISSA_OVERSIZED,
     /// When attempting to create an XFL the mantissa must be 16 decimal digits.
-    MantissaUndersized = -27,
+    MantissaUndersized = _c::MANTISSA_UNDERSIZED,
     /// When attempting to create an XFL the exponent must not exceed 80.
-    ExponentOversized = -28,
+    ExponentOversized = _c::EXPONENT_OVERSIZED,
     /// When attempting to create an XFL the exponent must not be less than -96.
-    ExponentUndersized = -29,
+    ExponentUndersized = _c::EXPONENT_UNDERSIZED,
     /// A floating point operation done on an XFL resulted in a value larger than XFL format is able to represent.
-    Overflow = -30,
+    XflOverflow = _c::XFL_OVERFLOW,
     /// An API assumed an STAmount was an IOU when in fact it was XRP.
-    NotIouAmount = -31,
+    NotIouAmount = _c::NOT_IOU_AMOUNT,
     /// An API assumed an STObject was an STAmount when in fact it was not.
-    NotAnAmount = -32,
+    NotAnAmount = _c::NOT_AN_AMOUNT,
     /// An API would have returned a negative integer except that negative integers are reserved for error codes (i.e. what you are reading.)
-    CantReturnNegative = -33,
+    CantReturnNegative = _c::CANT_RETURN_NEGATIVE,
+    /// Hook attempted to set foreign state but was not authorized to do so (grant was missing or invalid.)
+    NotAuthorized = _c::NOT_AUTHORIZED,
+    /// Hook previously received a NOT_AUTHORIZED return code and is not allowed to retry.
+    PreviousFailurePreventsRetry = _c::PREVIOUS_FAILURE_PREVENTS_RETRY,
+    /// Attempted to set a hook parameter for a later hook in the chain, but there are now too many parameters.
+    TooManyParams = _c::TOO_MANY_PARAMS,
+    /// Serialized transaction was not a valid transaction (usually because of a missing required field or data corruption / truncation.)
+    InvalidTxn = _c::INVALID_TXN,
+    /// Setting an additional state object on this account would cause the reserve requirements to exceed the account's balance.
+    ReserveInssuficient = _c::RESERVE_INSUFFICIENT,
+    /// Hook API would be forced to return a complex number, which it cannot do.
+    ComplexNotSupported = _c::COMPLEX_NOT_SUPPORTED,
+    /// Two arguments were required to be of the same type but are not.
+    DoesNotMatch = _c::DOES_NOT_MATCH,
+    /// The provided public key was not valid.
+    InvalidKey = _c::INVALID_KEY,
+    /// The buffer did not contain a nul terminated string.
+    NotAString = _c::NOT_A_STRING,
+    /// The writing pointer points to a buffer that overlaps with the reading pointer.
+    MemOverlap = _c::MEM_OVERLAP,
+    /// More than 5000 modified state entries in the combined hook chains
+    TooManyStateModifications = _c::TOO_MANY_STATE_MODIFICATIONS,
+    /// More than 256 namespaces on this account
+    TooManyNamespaces = _c::TOO_MANY_NAMESPACES,
 }
 
 impl Error {
@@ -555,42 +665,42 @@ type Buf3Reader = Api6ArgsU32;
 type BufWriter1Arg = Api3ArgsU32;
 
 #[inline(always)]
-fn api_1arg_call(arg: u32, fun: Api1ArgsU32) -> Result<u64> {
+fn api_1arg_call(arg: u32, fun: Api1ArgsU32) -> Result<i64> {
     let res = unsafe { fun(arg) };
 
-    result_u64(res)
+    result_i64(res)
 }
 
 #[inline(always)]
-fn api_3arg_call(arg_1: u32, arg_2: u32, arg_3: u32, fun: Api3ArgsU32) -> Result<u64> {
+fn api_3arg_call(arg_1: u32, arg_2: u32, arg_3: u32, fun: Api3ArgsU32) -> Result<i64> {
     let res = unsafe { fun(arg_1, arg_2, arg_3) };
 
-    result_u64(res)
+    result_i64(res)
 }
 
 #[inline(always)]
-fn buf_write(buf_write: &mut [u8], fun: BufWriter) -> Result<u64> {
+fn buf_write(buf_write: &mut [u8], fun: BufWriter) -> Result<i64> {
     let res = unsafe { fun(buf_write.as_mut_ptr() as u32, buf_write.len() as u32) };
 
-    result_u64(res)
+    result_i64(res)
 }
 
 #[inline(always)]
-fn buf_write_1arg(buf_write: &mut [u8], arg: u32, fun: BufWriter1Arg) -> Result<u64> {
+fn buf_write_1arg(buf_write: &mut [u8], arg: u32, fun: BufWriter1Arg) -> Result<i64> {
     let res = unsafe { fun(buf_write.as_mut_ptr() as u32, buf_write.len() as u32, arg) };
 
-    result_u64(res)
+    result_i64(res)
 }
 
 #[inline(always)]
-fn buf_read(buf: &[u8], fun: BufReader) -> Result<u64> {
+fn buf_read(buf: &[u8], fun: BufReader) -> Result<i64> {
     let res = unsafe { fun(buf.as_ptr() as u32, buf.len() as u32) };
 
-    result_u64(res)
+    result_i64(res)
 }
 
 #[inline(always)]
-fn buf_2read(buf_1: &[u8], buf_2: &[u8], fun: Buf2Reader) -> Result<u64> {
+fn buf_2read(buf_1: &[u8], buf_2: &[u8], fun: Buf2Reader) -> Result<i64> {
     let res = unsafe {
         fun(
             buf_1.as_ptr() as u32,
@@ -600,11 +710,11 @@ fn buf_2read(buf_1: &[u8], buf_2: &[u8], fun: Buf2Reader) -> Result<u64> {
         )
     };
 
-    result_u64(res)
+    result_i64(res)
 }
 
 #[inline(always)]
-fn buf_write_read(buf_write: &mut [u8], buf_read: &[u8], fun: BufWriterReader) -> Result<u64> {
+fn buf_write_read(buf_write: &mut [u8], buf_read: &[u8], fun: BufWriterReader) -> Result<i64> {
     let res = unsafe {
         fun(
             buf_write.as_mut_ptr() as u32,
@@ -614,7 +724,7 @@ fn buf_write_read(buf_write: &mut [u8], buf_read: &[u8], fun: BufWriterReader) -
         )
     };
 
-    result_u64(res)
+    result_i64(res)
 }
 
 #[inline(always)]
@@ -623,7 +733,7 @@ fn buf_3_read(
     buf_read_2: &[u8],
     buf_read_3: &[u8],
     fun: Buf3Reader,
-) -> Result<u64> {
+) -> Result<i64> {
     let res = unsafe {
         fun(
             buf_read_1.as_ptr() as u32,
@@ -635,7 +745,7 @@ fn buf_3_read(
         )
     };
 
-    result_u64(res)
+    result_i64(res)
 }
 
 #[inline(always)]
@@ -650,7 +760,7 @@ fn range_from_location(location: i64) -> core::ops::Range<usize> {
 }
 
 #[inline(always)]
-fn all_zeroes(buf_write: &mut [u8], keylet_type_c: u32) -> Result<u64> {
+fn all_zeroes(buf_write: &mut [u8], keylet_type_c: u32) -> Result<i64> {
     let res = unsafe {
         _c::util_keylet(
             buf_write.as_mut_ptr() as _,
@@ -665,11 +775,11 @@ fn all_zeroes(buf_write: &mut [u8], keylet_type_c: u32) -> Result<u64> {
         )
     };
 
-    result_u64(res)
+    result_i64(res)
 }
 
 #[inline(always)]
-fn buf_read_and_zeroes(buf_write: &mut [u8], buf_read: &[u8], keylet_type_c: u32) -> Result<u64> {
+fn buf_read_and_zeroes(buf_write: &mut [u8], buf_read: &[u8], keylet_type_c: u32) -> Result<i64> {
     let res = unsafe {
         _c::util_keylet(
             buf_write.as_mut_ptr() as _,
@@ -684,7 +794,7 @@ fn buf_read_and_zeroes(buf_write: &mut [u8], buf_read: &[u8], keylet_type_c: u32
         )
     };
 
-    result_u64(res)
+    result_i64(res)
 }
 
 #[inline(always)]
@@ -693,7 +803,7 @@ fn buf_read_and_1_arg(
     buf_read: &[u8],
     arg: u32,
     keylet_type_c: u32,
-) -> Result<u64> {
+) -> Result<i64> {
     let res = unsafe {
         _c::util_keylet(
             buf_write.as_mut_ptr() as _,
@@ -708,7 +818,7 @@ fn buf_read_and_1_arg(
         )
     };
 
-    result_u64(res)
+    result_i64(res)
 }
 
 #[inline(always)]
@@ -718,7 +828,7 @@ fn buf_read_and_2_args(
     arg_1: u32,
     arg_2: u32,
     keylet_type_c: u32,
-) -> Result<u64> {
+) -> Result<i64> {
     let res = unsafe {
         _c::util_keylet(
             buf_write.as_mut_ptr() as _,
@@ -733,7 +843,7 @@ fn buf_read_and_2_args(
         )
     };
 
-    result_u64(res)
+    result_i64(res)
 }
 
 #[inline(always)]
@@ -742,7 +852,7 @@ fn buf_2_read_and_zeroes(
     buf_1_read: &[u8],
     buf_2_read: &[u8],
     keylet_type_c: u32,
-) -> Result<u64> {
+) -> Result<i64> {
     let res = unsafe {
         _c::util_keylet(
             buf_write.as_mut_ptr() as _,
@@ -757,11 +867,11 @@ fn buf_2_read_and_zeroes(
         )
     };
 
-    result_u64(res)
+    result_i64(res)
 }
 
 #[inline(always)]
-fn result_u64(res: i64) -> Result<u64> {
+fn result_i64(res: i64) -> Result<i64> {
     match res {
         res if res >= 0 => Ok(res as _),
         _ => Err(Error::from_code(res as _)),

@@ -2,7 +2,7 @@
 
 ## Unreleased
 
-* Nothing
+* Update for latest Hooks
 
 ## 0.3.1 (2021-10-08)
 

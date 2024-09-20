@@ -33,7 +33,7 @@ pub fn sto_emplace(
     sto_src: &[u8],
     field: &[u8],
     field_id: FieldId,
-) -> Result<u64> {
+) -> Result<i64> {
     let res = unsafe {
         _c::sto_emplace(
             sto_out.as_mut_ptr() as u32,
@@ -46,12 +46,12 @@ pub fn sto_emplace(
         )
     };
 
-    result_u64(res)
+    result_i64(res)
 }
 
 /// Remove a field from an STObject
 #[inline(always)]
-pub fn sto_erase(sto_out: &mut [u8], sto_src: &[u8], field_id: FieldId) -> Result<u64> {
+pub fn sto_erase(sto_out: &mut [u8], sto_src: &[u8], field_id: FieldId) -> Result<i64> {
     let res = unsafe {
         _c::sto_erase(
             sto_out.as_mut_ptr() as u32,
@@ -62,7 +62,7 @@ pub fn sto_erase(sto_out: &mut [u8], sto_src: &[u8], field_id: FieldId) -> Resul
         )
     };
 
-    result_u64(res)
+    result_i64(res)
 }
 
 /// Validate an STObject

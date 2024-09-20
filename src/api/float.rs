@@ -90,7 +90,7 @@ pub fn float_sto(
     issuer_accid: &[u8],
     float: XFL,
     field_code: FieldId,
-) -> Result<u64> {
+) -> Result<i64> {
     let res = unsafe {
         _c::float_sto(
             amount.as_mut_ptr() as _,
@@ -104,7 +104,7 @@ pub fn float_sto(
         )
     };
 
-    result_u64(res)
+    result_i64(res)
 }
 
 /// Read a serialized amount into an XFL
@@ -137,12 +137,6 @@ pub fn float_one() -> XFL {
     XFL(unsafe { _c::float_one() })
 }
 
-/// Get the exponent of an XFL enclosing number
-#[inline(always)]
-pub fn float_exponent(float: XFL) -> i64 {
-    unsafe { _c::float_exponent(float.0) }
-}
-
 /// Get the mantissa of an XFL enclosing number
 #[inline(always)]
 pub fn float_mantissa(float: XFL) -> i64 {
@@ -159,32 +153,10 @@ pub fn float_sign(float: XFL) -> Result<bool> {
     }
 }
 
-/// Set the exponent of an XFL enclosing number
-#[inline(always)]
-pub fn float_exponent_set(float: XFL, exponent: i32) -> Result<XFL> {
-    let res = unsafe { _c::float_exponent_set(float.0, exponent) };
-
-    result_xfl(res)
-}
-
-/// Set the mantissa of an XFL enclosing number
-#[inline(always)]
-pub fn float_mantissa_set(float: XFL, mantissa: i64) -> Result<XFL> {
-    let res = unsafe { _c::float_mantissa_set(float.0, mantissa) };
-
-    result_xfl(res)
-}
-
-/// Set the sign of an XFL enclosing number
-#[inline(always)]
-pub fn float_sign_set(float: XFL, sign: bool) -> XFL {
-    XFL(unsafe { _c::float_sign_set(float.0, sign as _) })
-}
-
 /// Convert an XFL floating point into an integer (floor)
 #[inline(always)]
-pub fn float_int(float: XFL, decimal_places: u32, absolute: bool) -> Result<u64> {
+pub fn float_int(float: XFL, decimal_places: u32, absolute: bool) -> Result<i64> {
     let res = unsafe { _c::float_int(float.0, decimal_places, absolute as _) };
 
-    result_u64(res)
+    result_i64(res)
 }
