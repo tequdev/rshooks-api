@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+## 0.4.0 (2024-9-20)
+
 * Update for latest Hooks
 
 ## 0.3.1 (2021-10-08)
