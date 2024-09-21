@@ -142,11 +142,17 @@ pub fn util_keylet(keylet: &mut Keylet, keylet_type: KeyletType) -> Result<i64> 
         }
 
         KeyletType::EmittedTxn(key) => buf_read_and_zeroes(keylet, key, _c::KEYLET_EMITTED),
-        
-        KeyletType::NFTOffer(accid, num) => buf_read_and_1_arg(keylet, accid, num, _c::KEYLET_NFT_OFFER),
 
-        KeyletType::HookDefinition(hash) => buf_read_and_zeroes(keylet, hash, _c::KEYLET_HOOK_DEFINITION),
+        KeyletType::NFTOffer(accid, num) => {
+            buf_read_and_1_arg(keylet, accid, num, _c::KEYLET_NFT_OFFER)
+        }
 
-        KeyletType::HookStateDir(accid, namespace) => buf_2_read_and_zeroes(keylet, accid, namespace, _c::KEYLET_HOOK_STATE_DIR),
+        KeyletType::HookDefinition(hash) => {
+            buf_read_and_zeroes(keylet, hash, _c::KEYLET_HOOK_DEFINITION)
+        }
+
+        KeyletType::HookStateDir(accid, namespace) => {
+            buf_2_read_and_zeroes(keylet, accid, namespace, _c::KEYLET_HOOK_STATE_DIR)
+        }
     }
 }

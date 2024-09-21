@@ -14,7 +14,12 @@ pub fn state_set(data: &[u8], key: &StateKey) -> Result<i64> {
 
 /// Retrieve the data pointed to, on another account, by a Hook State key and write it to an output buffer
 #[inline(always)]
-pub fn state_foreign(data: &mut [u8], key: &StateKey, namespace: &NameSpace, accid: &AccountId) -> Result<i64> {
+pub fn state_foreign(
+    data: &mut [u8],
+    key: &StateKey,
+    namespace: &NameSpace,
+    accid: &AccountId,
+) -> Result<i64> {
     let res = unsafe {
         _c::state_foreign(
             data.as_mut_ptr() as u32,
@@ -33,7 +38,12 @@ pub fn state_foreign(data: &mut [u8], key: &StateKey, namespace: &NameSpace, acc
 
 /// Set the Hook State on another account for a given key, value and namespace
 #[inline(always)]
-pub fn state_foreign_set(data: &[u8], key: &StateKey, namespace: &NameSpace, accid: &AccountId) -> Result<i64> {
+pub fn state_foreign_set(
+    data: &[u8],
+    key: &StateKey,
+    namespace: &NameSpace,
+    accid: &AccountId,
+) -> Result<i64> {
     let res = unsafe {
         _c::state_foreign_set(
             data.as_ptr() as u32,
