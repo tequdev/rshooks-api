@@ -32,6 +32,6 @@ pub fn etxn_generation() -> i64 {
 
 /// Emit a new transaction from the hook
 #[inline(always)]
-pub fn emit(hash: &mut [u8], tx_buf: &[u8]) -> Result<i64> {
+pub fn emit(hash: &mut Hash, tx_buf: &[u8]) -> Result<i64> {
     buf_write_read(hash, tx_buf, _c::emit)
 }

@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* Refactor API functions to use specific types
+
 ## 0.4.0 (2024-9-20)
 
 * Update for latest Hooks

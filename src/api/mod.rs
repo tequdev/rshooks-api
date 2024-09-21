@@ -27,6 +27,8 @@ pub const TF_CANONICAL: u32 = _c::tfCANONICAL;
 
 /// Account id buffer lenght
 pub const ACC_ID_LEN: usize = 20;
+/// Public key buffer lenght
+pub const PUB_KEY_LEN: usize = 33;
 /// Currency code buffer lenght
 pub const CURRENCY_CODE_SIZE: usize = 20;
 /// Ledger hash buffer lenght
@@ -35,6 +37,8 @@ pub const LEDGER_HASH_LEN: usize = 32;
 pub const KEYLET_LEN: usize = 34;
 /// State key buffer lenght
 pub const STATE_KEY_LEN: usize = 32;
+/// NameSpace buffer lenght
+pub const NAMESPACE_LEN: usize = 32;
 /// Nonce buffer lenght
 pub const NONCE_LEN: usize = 32;
 /// Hash buffer lenght
@@ -49,12 +53,16 @@ pub type Buffer<const T: usize> = [u8; T];
 
 /// Account id buffer
 pub type AccountId = Buffer<ACC_ID_LEN>;
+/// Public key buffer
+pub type PublicKey = Buffer<PUB_KEY_LEN>;
 /// Hash buffer
 pub type Hash = Buffer<HASH_LEN>;
 /// Keylet buffer
 pub type Keylet = Buffer<KEYLET_LEN>;
 /// State key buffer
 pub type StateKey = Buffer<STATE_KEY_LEN>;
+/// Namespace key buffer
+pub type NameSpace = Buffer<NAMESPACE_LEN>;
 /// Nonce buffer
 pub type Nonce = Buffer<NONCE_LEN>;
 /// Amount buffer
@@ -151,30 +159,30 @@ pub enum AmountType {
 #[allow(missing_docs)]
 #[derive(Clone, Copy)]
 pub enum KeyletType<'a> {
-    Hook(&'a [u8]),
-    HookState(&'a [u8], &'a [u8]),
-    Account(&'a [u8]),
+    Hook(&'a AccountId),
+    HookState(&'a AccountId, &'a StateKey),
+    Account(&'a AccountId),
     Amendments,
-    Child(&'a [u8]),
+    Child(&'a Hash),
     Skip(Option<(u32, u32)>),
     Fees,
     NegativeUnl,
-    Line(&'a [u8], &'a [u8], &'a [u8]),
-    Offer(&'a [u8], u32),
+    Line(&'a AccountId, &'a AccountId, &'a CurrencyCode),
+    Offer(&'a AccountId, u32),
     Quality(&'a [u8], u32, u32),
     EmittedDir,
-    Signers(&'a [u8]),
-    Check(&'a [u8], u32),
-    DepositPreauth(&'a [u8], &'a [u8]),
-    Unchecked(&'a [u8]),
-    OwnerDir(&'a [u8]),
-    Page(&'a [u8], u32, u32),
-    Escrow(&'a [u8], u32),
-    Paychan(&'a [u8], &'a [u8], u32),
-    Emitted(&'a [u8]),
-    NFTOffer(&'a [u8], u32),
-    HookDefinition(&'a [u8]),
-    HookStateDir(&'a [u8], &'a [u8]),
+    Signers(&'a AccountId),
+    Check(&'a AccountId, u32),
+    DepositPreauth(&'a AccountId, &'a AccountId),
+    Unchecked(&'a Hash),
+    OwnerDir(&'a AccountId),
+    Page(&'a Hash, u32, u32),
+    Escrow(&'a AccountId, u32),
+    Paychan(&'a AccountId, &'a AccountId, u32),
+    EmittedTxn(&'a Hash),
+    NFTOffer(&'a AccountId, u32),
+    HookDefinition(&'a Hash),
+    HookStateDir(&'a AccountId, &'a NameSpace),
 }
 
 /// Field or amount type
@@ -446,6 +454,21 @@ pub enum DataRepr {
     AsUTF8 = 0,
     /// As hexadecimal
     AsHex = 1,
+}
+
+/// Flags for otxn_id\
+/// If 0:\
+/// Write the canonical hash of the originating transaction.\
+///
+/// If 1 AND the originating transaction is an EMIT_FAILURE:\
+/// Write the canonical hash of the emitting transaction.\
+#[derive(Clone, Copy)]
+#[repr(u32)]
+pub enum TxnTypeFlags {
+    /// Write the canonical hash of the originating transaction.
+    OriginatingTxn = 0,
+    /// Write the canonical hash of the emitting transaction.
+    EmittingTxnIfEmitFailure = 1,
 }
 
 /// `Result` is a type that represents either success ([`Ok`]) or failure ([`Err`]).

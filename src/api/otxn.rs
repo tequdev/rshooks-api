@@ -8,8 +8,8 @@ pub fn otxn_burden() -> i64 {
 
 /// Serialize and output a field from the originating transaction
 #[inline(always)]
-pub fn otxn_field(accid: &mut [u8], field_id: FieldId) -> Result<i64> {
-    buf_write_1arg(accid, field_id as _, _c::otxn_field)
+pub fn otxn_field(data: &mut [u8], field_id: FieldId) -> Result<i64> {
+    buf_write_1arg(data, field_id as _, _c::otxn_field)
 }
 
 /// Get the generation of the originating transaction
@@ -20,8 +20,8 @@ pub fn otxn_generation() -> i64 {
 
 /// Output the canonical hash of the originating transaction
 #[inline(always)]
-pub fn otxn_id(hash: &mut [u8], flags:u32) -> Result<i64> {
-    buf_write_1arg(hash, flags, _c::otxn_id)
+pub fn otxn_id(hash: &mut Hash, flags: TxnTypeFlags) -> Result<i64> {
+    buf_write_1arg(hash, flags as u32, _c::otxn_id)
 }
 
 /// Get the Transaction Type of the originating transaction
