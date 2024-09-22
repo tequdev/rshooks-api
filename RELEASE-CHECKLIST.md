@@ -11,6 +11,6 @@
 - [ ] Git: `git commit -a -m "Release vX.Y.Z"`
 - [ ] Git: `git push origin main`
 - [ ] Github CI: wait for success or repeat...
-- [ ] Git: add version annotated tag `git tag -a vX.Y.Z`
-- [ ] Git: push tags `git push origin vX.Y.Z`
+- [ ] Git: add version annotated tag `git tag -a X.Y.Z`
+- [ ] Git: push tags `git push origin X.Y.Z`
 - [ ] Github CD: wait for cargo publish and check it out on https://crates.io
