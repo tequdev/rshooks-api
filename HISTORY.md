@@ -2,8 +2,11 @@
 
 ## Unreleased
 
+## 0.5.0 (2024-9-22)
+
 * Refactor API functions to use specific types
 * Refactor amount buffer types for native and non-native amounts
+  * Including Breaking Changes
 
 ## 0.4.0 (2024-9-20)
 
