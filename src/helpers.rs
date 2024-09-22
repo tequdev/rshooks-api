@@ -166,6 +166,25 @@ pub const fn amount_to_drops(amount_buf: &NativeAmount) -> Result<u64> {
         + (amount_buf[7] as u64))
 }
 
+/// Convert amount to drops
+#[inline(always)]
+pub const fn drops_to_amount(drops: u64) -> Result<NativeAmount> {
+    if (drops >> 63) == 1 {
+        return Err(Error::InternalError);
+    }
+
+    let mut out: NativeAmount = [0; 8];
+    out[0] = 0b01000000 + ((drops >> 56) & 0b00111111) as u8;
+    out[1] = ((drops >> 48) & 0xFF) as u8;
+    out[2] = ((drops >> 40) & 0xFF) as u8;
+    out[3] = ((drops >> 32) & 0xFF) as u8;
+    out[4] = ((drops >> 24) & 0xFF) as u8;
+    out[5] = ((drops >> 16) & 0xFF) as u8;
+    out[6] = ((drops >> 8) & 0xFF) as u8;
+    out[7] = ((drops >> 0) & 0xFF) as u8;
+    Ok(out)
+}
+
 #[cfg(test)]
 mod tests {
     use super::*;
@@ -202,5 +221,66 @@ mod tests {
         assert_eq!(is_buffer_equal_32(&DATA_1, &DATA_1), true);
         assert_eq!(is_buffer_equal_32(&DATA_1, &DATA_2), false);
         assert_eq!(is_buffer_equal_32(&DATA_1, &DATA_3), true);
+    }
+
+    #[test]
+    fn amount_to_drops_test() {
+        let amount_buf: NativeAmount = [0b10000000, 0, 0, 0, 0, 0, 0, 0];
+        assert!(amount_to_drops(&amount_buf).is_err());
+        let amount_buf: NativeAmount = [0, 0, 0, 0, 0, 0, 0, 0];
+        match amount_to_drops(&amount_buf) {
+            Ok(amount) => assert_eq!(amount, 0),
+            Err(_) => (),
+        }
+        let amount_buf: NativeAmount = [0, 0, 0, 0, 0, 0, 0, 1];
+        match amount_to_drops(&amount_buf) {
+            Ok(amount) => assert_eq!(amount, 1),
+            Err(_) => (),
+        }
+        let amount_buf: NativeAmount = [0, 0, 0, 0, 0, 0, 0, 100];
+        match amount_to_drops(&amount_buf) {
+            Ok(amount) => assert_eq!(amount, 100),
+            Err(_) => (),
+        }
+        let amount_buf: NativeAmount = [0, 0, 0, 0, 0x05, 0xF5, 0xE1, 0];
+        match amount_to_drops(&amount_buf) {
+            Ok(amount) => assert_eq!(amount, 100000000),
+            Err(_) => (),
+        }
+        let amount_buf: NativeAmount = [0x01, 0x63, 0x45, 0x78, 0x5D, 0x8A, 0, 0];
+        match amount_to_drops(&amount_buf) {
+            Ok(amount) => assert_eq!(amount, 100000000000000000),
+            Err(_) => (),
+        }
+    }
+
+    #[test]
+    fn drops_to_amount_test() {
+        assert!(drops_to_amount(0x8000000000000000).is_err());
+        let amount_buf: NativeAmount = [0b01000000, 0, 0, 0, 0, 0, 0, 0];
+        match drops_to_amount(0) {
+            Ok(amount) => assert_eq!(amount, amount_buf),
+            Err(_) => (),
+        }
+        let amount_buf: NativeAmount = [0b01000000, 0, 0, 0, 0, 0, 0, 1];
+        match drops_to_amount(1) {
+            Ok(amount) => assert_eq!(amount, amount_buf),
+            Err(_) => (),
+        }
+        let amount_buf: NativeAmount = [0b01000000, 0, 0, 0, 0, 0, 0, 100];
+        match drops_to_amount(100) {
+            Ok(amount) => assert_eq!(amount, amount_buf),
+            Err(_) => (),
+        }
+        let amount_buf: NativeAmount = [0b01000000, 0, 0, 0, 0x05, 0xF5, 0xE1, 0];
+        match drops_to_amount(100000000) {
+            Ok(amount) => assert_eq!(amount, amount_buf),
+            Err(_) => (),
+        }
+        let amount_buf: NativeAmount = [0b01000000 | 0x01, 0x63, 0x45, 0x78, 0x5D, 0x8A, 0, 0];
+        match drops_to_amount(100000000000000000) {
+            Ok(amount) => assert_eq!(amount, amount_buf),
+            Err(_) => (),
+        }
     }
 }
