@@ -2,6 +2,8 @@
 
 ## Unreleased
 
+* Added `require` and `is_buffer_equal_20`, `is_buffer_equal_32` helpers
+
 ## 0.5.0 (2024-9-22)
 
 * Refactor API functions to use specific types

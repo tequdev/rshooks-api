@@ -9,3 +9,6 @@ repository = "https://github.com/tequdev/rshooks-api/"
 readme = "README.md"
 keywords = ["xrp", "xrpl", "hook", "hooks", "cryptocurrencies"]
 categories = ["wasm", "no-std", "cryptography::cryptocurrencies"]
+
+[dependencies]
+byteorder = { version = "1", default-features = false }
