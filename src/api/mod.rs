@@ -43,8 +43,10 @@ pub const NAMESPACE_LEN: usize = 32;
 pub const NONCE_LEN: usize = 32;
 /// Hash buffer lenght
 pub const HASH_LEN: usize = 32;
-/// Amount buffer lenght
-pub const AMOUNT_LEN: usize = 48;
+/// Native amount buffer lenght
+pub const NATIVE_AMOUNT_LEN: usize = 8;
+/// IOU amount buffer lenght
+pub const IOU_AMOUNT_LEN: usize = 48;
 /// Emit details buffer lenght
 pub const EMIT_DETAILS_SIZE: usize = 105;
 
@@ -65,8 +67,10 @@ pub type StateKey = Buffer<STATE_KEY_LEN>;
 pub type NameSpace = Buffer<NAMESPACE_LEN>;
 /// Nonce buffer
 pub type Nonce = Buffer<NONCE_LEN>;
-/// Amount buffer
-pub type Amount = Buffer<AMOUNT_LEN>;
+/// Native amount buffer
+pub type NativeAmount = Buffer<NATIVE_AMOUNT_LEN>;
+/// IOU amount buffer
+pub type NonNativeAmount = Buffer<IOU_AMOUNT_LEN>;
 /// Emit details buffer
 pub type EmitDetails = Buffer<EMIT_DETAILS_SIZE>;
 /// Currency code buffer
