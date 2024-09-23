@@ -5,6 +5,7 @@
 * Added `require` and `is_buffer_equal_20`, `is_buffer_equal_32` helpers
 * Added `drops_to_amount` helper
 * Revert strict types
+* Added optional fn to Result
 
 ## 0.5.0 (2024-9-22)
 

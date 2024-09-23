@@ -505,6 +505,22 @@ impl<T> Result<T> {
         }
     }
 
+    /// Returns the contained [`Ok`] value, or a None if the value is an DOES_NOT_EXIST error.
+    ///
+    /// # Rollbacks
+    ///
+    /// Rollbacks if the value is an [`Err`] except for DOES_NOT_EXIST error.
+    #[inline(always)]
+    pub fn optional(self) -> Option<T> {
+        match self {
+            Ok(val) => Some(val),
+            Err(e) if e.code() == Error::DoesntExist.code() => None,
+            Err(e) => {
+                rollback(b"error", e.code() as _);
+            }
+        }
+    }
+
     /// Returns the contained [`Ok`] value, consuming the `self` value.
     ///
     /// Because this function may rollback, its use is generally discouraged.
