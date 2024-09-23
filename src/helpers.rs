@@ -117,8 +117,8 @@ pub fn buffer_zeroize<const GUARD_ID: u32>(buf: &mut [u8]) {
 /// Otherwise you will encounter guard violation during the execution of your hook.
 #[inline(always)]
 pub fn is_txn_outgoing<const GUARD_ID: u32>(
-    hook_acc_id: &mut AccountId,
-    otnx_acc_id: &mut AccountId,
+    hook_acc_id: &mut [u8],
+    otnx_acc_id: &mut [u8],
 ) -> Result<bool> {
     match hook_account(hook_acc_id) {
         Err(e) => return Err(e),
@@ -140,8 +140,8 @@ pub fn is_txn_outgoing<const GUARD_ID: u32>(
 /// Otherwise you will encounter guard violation during the execution of your hook.
 #[inline(always)]
 pub fn is_txn_ingoing<const GUARD_ID: u32>(
-    hook_acc_id: &mut AccountId,
-    otnx_acc_id: &mut AccountId,
+    hook_acc_id: &mut [u8],
+    otnx_acc_id: &mut [u8],
 ) -> Result<bool> {
     match is_txn_outgoing::<GUARD_ID>(hook_acc_id, otnx_acc_id) {
         Err(e) => Err(e),
@@ -151,7 +151,7 @@ pub fn is_txn_ingoing<const GUARD_ID: u32>(
 
 /// Convert amount to drops
 #[inline(always)]
-pub const fn amount_to_drops(amount_buf: &NativeAmount) -> Result<u64> {
+pub const fn amount_to_drops(amount_buf: &[u8]) -> Result<u64> {
     if (amount_buf[0] >> 7) == 1 {
         return Err(Error::InternalError);
     }

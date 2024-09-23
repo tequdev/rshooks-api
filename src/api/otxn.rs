@@ -20,7 +20,7 @@ pub fn otxn_generation() -> i64 {
 
 /// Output the canonical hash of the originating transaction
 #[inline(always)]
-pub fn otxn_id(hash: &mut Hash, flags: TxnTypeFlags) -> Result<i64> {
+pub fn otxn_id(hash: &mut [u8], flags: TxnTypeFlags) -> Result<i64> {
     buf_write_1arg(hash, flags as u32, _c::otxn_id)
 }
 
