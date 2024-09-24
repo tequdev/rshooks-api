@@ -6,6 +6,7 @@
 * Added `drops_to_amount` helper
 * Revert strict types
 * Added optional fn to Result
+* Added `slice` and `slice_mut` helpers
 
 ## 0.5.0 (2024-9-22)
 

@@ -1,6 +1,56 @@
 use crate::api::*;
 use byteorder::{ByteOrder, LittleEndian};
 
+/// Returns a slice of the given data with the specified length
+///
+/// # Arguments
+/// * `data` - The data to slice
+/// * `offset` - The offset to start the slice
+///
+/// # Returns
+/// A slice of the given data with the specified length
+///
+/// # Example
+/// ```
+/// let data = [1, 2, 3, 4, 5];
+/// let slice = slice<3>(&data, 1);
+/// assert_eq!(slice, [2, 3, 4]);
+/// ```
+#[inline]
+pub fn slice<const T: usize>(data: &[u8], offset: usize) -> &[u8; T] {
+    let sliced_data: &[u8] = &data[offset..(T + offset)];
+    if sliced_data.len() < T {
+        rollback(b"Too Big slice length.", 0);
+    }
+    let ptr = sliced_data.as_ptr() as *const [u8; T];
+    return unsafe { &*ptr };
+}
+
+/// Returns a mutable slice of the given data with the specified length
+///
+/// # Arguments
+/// * `data` - The data to slice
+/// * `offset` - The offset to start the slice
+///
+/// # Returns
+/// A mutable slice of the given data with the specified length
+///
+/// # Example
+/// ```
+/// let mut data = [1, 2, 3, 4, 5];
+/// let slice = slice_mut<3>(&mut data, 1);
+/// assert_eq!(slice, [2, 3, 4]);
+/// ```
+#[inline]
+pub fn slice_mut<const T: usize>(data: &mut [u8], offset: usize) -> &mut [u8; T] {
+    let sliced_data: &mut [u8] = &mut data[offset..(T + offset)];
+    if sliced_data.len() < T {
+        rollback(b"Too Big slice length.", 0);
+    }
+    let ptr = sliced_data.as_mut_ptr() as *mut [u8; T];
+    return unsafe { &mut *ptr };
+}
+
 /// Rolls back the transaction if the condition is not met
 ///
 /// # Arguments
