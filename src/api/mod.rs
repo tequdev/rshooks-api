@@ -552,7 +552,7 @@ impl<T> Result<T> {
         match self {
             Ok(val) => val,
             // SAFETY: the safety contract must be upheld by the caller.
-            Err(_) => core::hint::unreachable_unchecked(),
+            Err(_) => unsafe { core::hint::unreachable_unchecked() },
         }
     }
 
