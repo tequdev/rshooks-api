@@ -13,9 +13,10 @@ use byteorder::{ByteOrder, LittleEndian};
 /// # Example
 /// ```
 /// let data = [1, 2, 3, 4, 5];
-/// let slice = slice<3>(&data, 1);
-/// assert_eq!(slice, [2, 3, 4]);
+/// let sliced = slice::<3>(&data, 1);
+/// assert_eq!(sliced, [2, 3, 4]);
 /// ```
+#[cfg(not(doctest))]
 #[inline]
 pub fn slice<const T: usize>(data: &[u8], offset: usize) -> &[u8; T] {
     let sliced_data: &[u8] = &data[offset..(T + offset)];
@@ -38,9 +39,10 @@ pub fn slice<const T: usize>(data: &[u8], offset: usize) -> &[u8; T] {
 /// # Example
 /// ```
 /// let mut data = [1, 2, 3, 4, 5];
-/// let slice = slice_mut<3>(&mut data, 1);
-/// assert_eq!(slice, [2, 3, 4]);
+/// let sliced = slice_mut::<3>(&mut data, 1);
+/// assert_eq!(sliced, [2, 3, 4]);
 /// ```
+#[cfg(not(doctest))]
 #[inline]
 pub fn slice_mut<const T: usize>(data: &mut [u8], offset: usize) -> &mut [u8; T] {
     let sliced_data: &mut [u8] = &mut data[offset..(T + offset)];
