@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+
+## 0.6.0 (2024-10-07)
+
 * Added `require` and `is_buffer_equal_20`, `is_buffer_equal_32` helpers
 * Added `drops_to_amount` helper
 * Revert strict types
